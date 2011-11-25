@@ -31,7 +31,7 @@ class Medium :
 	key -> key to identify protocol messages for the local user
 
 	Scan the email account for messages sent to this user, should return
-	maybe a dictionary of tuples, { mid : (seq, data) } ?
+	maybe a dictionary of lists of tuples, { mid : [(seq1, data1), ... (seqn, datan)] } ?
 		'''
 
 class EmailError(Exception) :
