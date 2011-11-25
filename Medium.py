@@ -2,11 +2,11 @@
 # base class for transmission medium 
 # just a draft for now
 
-Class Medium :
+class Medium :
 
 	'''Base class for transmission medium.'''
 
-	# key to identify the user, will need to be unique among users, maybe an RSA public key? 
+	# key to identify the user, will need to be unique among users, maybe an RSA key? 
 	user_key = ''
 
 	
@@ -20,7 +20,11 @@ Class Medium :
 
 
 	def receive(self, user, mid) :
-
+		
+		'''
+	Scan the email account for messages sent to this user
+		'''
+	
 
 	def mtu(self) :
 
