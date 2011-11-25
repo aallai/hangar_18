@@ -4,83 +4,107 @@ import poplib
 
 POP = 0
 IMAP = 1
-
+ 
 # base class for transmission medium 
 # just a draft for now
 
 class Medium :
 
 	'''Base class for transmission medium.'''
-
-	# key to identify the user, will need to be unique among users, maybe an RSA key? 
-	user_key = ''
-
+ 
+	# mtu, useful for splitting up the message
+	mtu = 0
 	
-	def send(self, data, mid, seq) :
+	def send(self, data, mid, seq, key) :
 		
 		'''
 	mid -> message id
 	seq -> sequence number
 	data -> string to send
+	key -> key used to identify protocol messages remote user
 		'''
 
 
-	def receive(self) :
+	def receive(self, key) :
 		
-		'''
+	 	'''
+	key -> key to identify protocol messages for the local user
+
 	Scan the email account for messages sent to this user, should return
 	maybe a dictionary of tuples, { mid : (seq, data) } ?
 		'''
-	
 
-	def mtu(self) :
+class EmailError(Exception) :
 
-		'''
-	Something to get the medium's mtu, for example you can only send a limited amount of
-	characters in a tweet.
-		'''
+	'''
+Base class for email errors
+	'''
+
+	def __init__(self, reason) :
+		self.reason = reason
+
 
 class EmailMedium(Medium) :
 
 	# use POP as default, some webmail services don't offer IMAP	
 
-	def __init__(self, key, address, proto=POP) :
+	def __init__(self, address, passwd=None, proto=None) :
 
-		if proto != POP and proto != IMAP :
-			return None 
-
-		self.user_key = key
+		
+		# MTU depends on smtp settings of server... maybe we should connect here and figure it out
 		self.addr = address
-		self.recv_proto = proto	
+		self.mtu = 2048          # temporary	
+
+		# I am thinking of using the same class to represent
+		# the local users account (for which we need a password)
+		# and other users account, in which case we will never receive..
+		# not the cleanest thig ever
+		if passwd and proto :
+
+			if proto != IMAP and proto != POP :
+				return None
+
+			self.passwd = passwd
+			self.proto = proto
+		else :
+			self.passwd = None
+			self.proto = None
 
 
-	def send(self, data, mid, seq) :
+	def send(self, data, mid, seq, key) :
 		
 		'''
 	Make a header and use smtp to send the data
 		'''
 
 	
-	def receive(self) :
+	def receive(self, key) :
+
+		if not (self.passwd and self.proto) :
+			raise EmailError("Tried to receive on another user's email account.") 
 
 		'''
 	Scan email account for messages
 		'''
 
 		if (self.recv_proto == POP) :
-			recv_pop(self)
+			recv_pop(self, key)
 		else :
-			recv_imap(self)
+			recv_imap(self, key)
 
 
-	def recv_pop(self) :
+	def recv_pop(self, key) :
 
 		'''
 	TODO
 		'''
 
-	def recv_imap(self) :
+	def recv_imap(self, key) :
  
 		'''
 	TODO
 		'''
+
+
+	
+
