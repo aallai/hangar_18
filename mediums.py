@@ -46,6 +46,10 @@ Base class for email errors
 
 class EmailMedium(Medium) :
 
+	'''
+Represents an email account to which messages can be sent (and possbly received if we have the password for it).
+	'''
+
 	# use POP as default, some webmail services don't offer IMAP	
 
 	def __init__(self, address, passwd=None, proto=None) :
