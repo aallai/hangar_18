@@ -5,29 +5,24 @@
 Class Medium :
 
 	'''Base class for transmission medium.'''
+
+	# key to identify the user, will need to be unique among users, maybe an RSA public key? 
+	user_key = ''
+
 	
-	def send(user, data, mid, seq) :
+	def send(self, data, mid, seq) :
 		
 		'''
-	I am thinking of this sending one message (i.e a single email or tweet or whatever),
-	I am not sure what user will be yet, maybe just an adress (this might limit the mediums
-	we can use), maybe an object of some sort containing medium specific info about the user.
-
-	user -> ???
 	mid -> message id
 	seq -> sequence number
 	data -> string to send
 		'''
 
 
-	def receive(user, mid) :
-
-		'''
-	Again, not sure what user will be, mid is the message id.
-		'''
+	def receive(self, user, mid) :
 
 
-	def mtu() :
+	def mtu(self) :
 
 		'''
 	Something to get the medium's mtu, for example you can only send a limited amount of
