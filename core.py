@@ -31,16 +31,13 @@ def send(medium_list, data, sender_key, receiver_key) :
 	segments = []
 
 	for i in xrange(data_len / min_mtu) :			
-		segments.append( (i, data[i*min_mtu : i*min_mtu + min_mtu]) )
+		segments += (i, data[i*min_mtu : i*min_mtu + min_mtu]) 
 
 	seq_len = len(segments)
 
 	if (data_len % min_mtu != 0) :
-		segments.append( (seq_len, data[seq_len * min_mtu :]) )
+		segments += (seq_len, data[seq_len * min_mtu :]) 
 		seq_len += 1
-
-	print segments
-
 	
 	messages_per_medium = len(segments) / med_len	
 	
@@ -57,6 +54,27 @@ def send(medium_list, data, sender_key, receiver_key) :
 
 def send_range(medium, segments, key, mid) :
 
-	for (seq, segment) in segments :
+	for seq, segment in segments :
                         medium.send(segment, seq, mid, key)
+
+def receive(medium_list, receiver_key) :
+	
+	'''
+Returns a dictionary {mid : data} for every message found by scanning medium_list.
+	'''
+
+	# assumes that medium.receive returns a dictionary in the form {mid : [ (seq, data), ...]}
+	messages = {}
+	for medium in medium_list :
+		d = medium.receive(receiver_key)
+
+		for mid, segments in d.items() :
+			try :
+				messages[mid] += chunk_list
+			except KeyError :
+				messages[mid] = chunk_list
+	
+	# python guesses how to sort this correctly 		
+	return {mid : ''.join([seg[1] for seg in sorted(segments)]) for mid, segments in messages.items()}	
+	
 		
