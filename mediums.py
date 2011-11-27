@@ -1,6 +1,7 @@
 import smtplib
 import imaplib
 import poplib
+from config import config
 
 POP = 0
 IMAP = 1
@@ -50,36 +51,43 @@ class EmailMedium(Medium) :
 Represents an email account to which messages can be sent (and possbly received if we have the password for it).
 	'''
 
-	# use POP as default, some webmail services don't offer IMAP	
+	'''
+CEST LE BORDEL ICITTE
+	'''
 
-	def __init__(self, address, passwd=None, proto=None) :
+	def __init__(self, address, recv_server=None, passwd=None, proto=None) :
 
-		
 		# MTU depends on smtp settings of server... maybe we should connect here and figure it out
-		self.addr = address
+		self.address = address
 		self.mtu = 2048          # temporary	
 
-		# I am thinking of using the same class to represent
-		# the local users account (for which we need a password)
-		# and other users account, in which case we will never receive..
-		# not the cleanest thig ever
-		if passwd and proto :
+		if recv_server and passwd and proto :
 
 			if proto != IMAP and proto != POP :
 				return None
 
+			self.server = recv_server
 			self.passwd = passwd
 			self.proto = proto
 		else :
+			self.server = None
 			self.passwd = None
 			self.proto = None
 
 
 	def send(self, data, mid, seq, key) :
+			
+		# not sure this works with every smtp server
+	
+		server = smtplib.SMTP(config['smtp_server'])
+		server.starttls()
+		server.login(config['smtp_user'], config['smtp_passwd'])		
+
+
+		msg = '\n'.join([key, mid + ' ' + str(seq), data])
 		
-		'''
-	Make a header and use smtp to send the data
-		'''
+		server.sendmail(self.address, self.address, msg)
+		
 
 	
 	def receive(self, key) :

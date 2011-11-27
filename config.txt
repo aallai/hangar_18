@@ -1,0 +1,3 @@
+smtp_server = smtp.gmail.com
+smtp_user = comp535test@gmail.com
+smtp_passwd = assignment3

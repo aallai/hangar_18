@@ -31,12 +31,12 @@ def send(medium_list, data, sender_key, receiver_key) :
 	segments = []
 
 	for i in xrange(data_len / min_mtu) :			
-		segments += (i, data[i*min_mtu : i*min_mtu + min_mtu]) 
+		segments += [ (i, data[i*min_mtu : i*min_mtu + min_mtu]) ]
 
 	seq_len = len(segments)
 
 	if (data_len % min_mtu != 0) :
-		segments += (seq_len, data[seq_len * min_mtu :]) 
+		segments += [ (seq_len, data[seq_len * min_mtu :]) ]
 		seq_len += 1
 	
 	messages_per_medium = len(segments) / med_len	
@@ -54,8 +54,10 @@ def send(medium_list, data, sender_key, receiver_key) :
 
 def send_range(medium, segments, key, mid) :
 
+	print segments
+
 	for seq, segment in segments :
-                        medium.send(segment, seq, mid, key)
+                        medium.send(segment, mid, seq, key)
 
 def receive(medium_list, receiver_key) :
 	
