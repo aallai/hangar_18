@@ -72,9 +72,9 @@ Returns a dictionary {mid : data} for every message found by scanning medium_lis
 
 		for mid, segments in d.items() :
 			try :
-				messages[mid] += chunk_list
+				messages[mid] += segments
 			except KeyError :
-				messages[mid] = chunk_list
+				messages[mid] = segments
 	
 	# python guesses how to sort this correctly 		
 	return {mid : ''.join([seg[1] for seg in sorted(segments)]) for mid, segments in messages.items()}	
