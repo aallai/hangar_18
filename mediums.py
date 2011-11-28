@@ -9,7 +9,7 @@ IMAP = 1
 # base class for transmission medium 
 # just a draft for now
 
-class Medium :
+class Medium(object) :
 
 	'''Base class for transmission medium.'''
  
@@ -41,8 +41,62 @@ class EmailError(Exception) :
 Base class for email errors
 	'''
 
-	def __init__(self, reason) :
-		self.reason = reason
+		
+class MailboxServer(object) :
+
+	'''
+Encapsulates all the details of wether to use pop, imap, ssl bla bla
+	'''
+
+	def __init__(self, host, port, user, passwd) :
+		
+		self.host = host
+		self.port = port
+		self.user = user
+		self.passwd = passwd
+
+	def fetch_mail() : 
+		
+		'''
+	Returns the body of every message in the inbox.
+		'''	
+
+class ImapServer(MailboxServer) :
+
+	def __init__(self, host, user, passwd, port=0, use_ssl=True) :
+		
+		if port == 0 :
+			if use_ssl :
+				port = 993
+			else :
+				port = 143
+
+		super().__init__(host, port, user, passwd)
+		self.use_ssl = use_ssl
+
+
+	def fetch_mail(self) :
+		
+		try :
+			server = None
+
+			if use_ssl :
+				server = imaplib.IMAP4_SSL(self.host, self.port)
+			else :
+				server = imaplib.IMAP(self.host, self.port)
+			
+			server.login(self.user, self.passwd)
+			# checks INBOX by default
+			server.select()
+
+			ls = []
+			for index in server.search(None, 'ALL')[1][0].split() :			
+				ls.append(server.fetch(index, '(UID BODY[TEXT])')[1][0][1])					
+	
+			return ls	
+
+		except IMAP4.error e :
+			raise EmailError(e.message)			
 
 
 class EmailMedium(Medium) :
@@ -51,28 +105,14 @@ class EmailMedium(Medium) :
 Represents an email account to which messages can be sent (and possbly received if we have the password for it).
 	'''
 
-	'''
-CEST LE BORDEL ICITTE
-	'''
 
-	def __init__(self, address, recv_server=None, passwd=None, proto=None) :
+	def __init__(self, address, mailbox_server=None) :
 
 		# MTU depends on smtp settings of server... maybe we should connect here and figure it out
 		self.address = address
 		self.mtu = 2048          # temporary	
+		self.mailbox_server = mailbox_server
 
-		if recv_server and passwd and proto :
-
-			if proto != IMAP and proto != POP :
-				return None
-
-			self.server = recv_server
-			self.passwd = passwd
-			self.proto = proto
-		else :
-			self.server = None
-			self.passwd = None
-			self.proto = None
 
 
 	def send(self, data, mid, seq, key) :
@@ -87,36 +127,19 @@ CEST LE BORDEL ICITTE
 		msg = '\n'.join([key, mid + ' ' + str(seq), data])
 		
 		server.sendmail(self.address, self.address, msg)
-		
+		server.quit()		
 
 	
 	def receive(self, key) :
 
-		if not (self.passwd and self.proto) :
-			raise EmailError("Tried to receive on another user's email account.") 
+		if not (self.mailbox_server) :
+			raise EmailError("Tried to receive email account for which no IMAP/POP server was provided.") 
 
 		'''
 	Scan email account for messages
 		'''
 
-		if (self.recv_proto == POP) :
-			recv_pop(self, key)
-		else :
-			recv_imap(self, key)
-
-
-	def recv_pop(self, key) :
-
-		'''
-	TODO
-		'''
-
-	def recv_imap(self, key) :
- 
-		'''
-	TODO
-		'''
-
+		messages = mailbox_server.fetch_mail()
 
 	
 
