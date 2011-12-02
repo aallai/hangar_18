@@ -2,23 +2,24 @@ import sys
 import random
 import hashlib
 import time
+from config import config
 
 
 '''
 Functions to send and receive messages using the protocol
 '''
 
-def send(medium_list, data, sender_key, receiver_key) :
+def send(sender, receiver, data) :
 
 	# unique message id
-	mid = hashlib.md5(sender_key + receiver_key + str(time.time())).hexdigest()
+	mid = hashlib.md5(sender.key + receiver.key + str(time.time())).hexdigest()
 	
 	data_len = len(data)
-	med_len = len(medium_list)
+	med_len = len(receiver.mlist)
 
-	min_mtu = 5	
+	min_mtu = int(config['default_mtu'])	
 
-	for medium in medium_list :		
+	for medium in receiver.mlist :		
 		if medium.mtu < min_mtu :
 			min_mtu = medium.mtu
 
@@ -45,21 +46,19 @@ def send(medium_list, data, sender_key, receiver_key) :
 	random.shuffle(segments)
 
 	for i in xrange(med_len) :
-		send_range(medium_list[i], segments[i * messages_per_medium : i*messages_per_medium + messages_per_medium], receiver_key, mid)
+		send_range(receiver.mlist[i], segments[i * messages_per_medium : i*messages_per_medium + messages_per_medium], receiver.key, mid)
 		
 	if (med_len * messages_per_medium % seq_len != 0) :
-		send_range(medium_list[0], segments[med_len * messages_per_medium :], receiver_key, mid)		
+		send_range(receiver.mlist[0], segments[med_len * messages_per_medium :], sender.key, mid)		
 			
 
 
 def send_range(medium, segments, key, mid) :
 
-	print segments
-
 	for seq, segment in segments :
                         medium.send(segment, mid, seq, key)
 
-def receive(medium_list, receiver_key) :
+def receive(user) :
 	
 	'''
 Returns a dictionary {mid : data} for every message found by scanning medium_list.
@@ -67,8 +66,8 @@ Returns a dictionary {mid : data} for every message found by scanning medium_lis
 
 	# assumes that medium.receive returns a dictionary in the form {mid : [ (seq, data), ...]}
 	messages = {}
-	for medium in medium_list :
-		d = medium.receive(receiver_key)
+	for medium in user.mlist :
+		d = medium.receive(user.key)
 
 		for mid, segments in d.items() :
 			try :
@@ -78,5 +77,4 @@ Returns a dictionary {mid : data} for every message found by scanning medium_lis
 	
 	# python guesses how to sort this correctly 		
 	return {mid : ''.join([seg[1] for seg in sorted(segments)]) for mid, segments in messages.items()}	
-	
 		
