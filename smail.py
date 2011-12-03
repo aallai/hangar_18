@@ -4,7 +4,7 @@ import sys
 import pickle
 import os
 from config import config
-from core import *
+import core
 
 
 users = None
@@ -13,16 +13,15 @@ users = None
 def main(argv) :
 
 	setup()
-	
-	while True :
-		menu = '''
+
+	menu = '''
 Welcome!
 
 1 Retreive messages
 2 Send a message
 3 Exit
-
 '''
+	while True :
 
 		try : 
 			action = int(raw_input(menu))
@@ -30,14 +29,77 @@ Welcome!
 	
 			if action == 1 :
 				retreive_messages()
-								
+			elif action == 2 :
+				send()
+			elif action == 3 :
+				sys.exit(1)
+			else :
+				bogus_input()					
 
 		except ValueError :
 			bogus_input()	
  
 
 def bogus_input() :
-	sys.err.write('\nEnter a valid choice from the menu.\n')		
+	sys.stderr.write('\nEnter a choice from the menu.\n')		
+
+
+def send() :
+	
+	menu = '''
+1 Specify a plaintext file
+2 Type into prompt
+3 Return to menu
+'''	
+
+	try :
+		action = int(raw_input(menu))
+                print
+
+                if action == 1 :
+			f = raw_input('file : ')
+	
+			try :
+				data = open(f.strip(), 'r').read()
+				get_dest_and_send(data)
+			except IOError :
+				print "Can't open file."
+				send()	
+
+		elif action == 2 :
+			print 'Enter EOF when done.'
+
+			data = ''			
+			line = raw_input() 
+
+			while line.strip() != 'EOF' :
+				data += line + '\n'		
+				line = raw_input()
+
+			get_dest_and_send(data)
+
+		elif action == 3 :
+			return
+
+		else :
+			raise ValueError
+
+	except ValueError :
+		bogus_input()
+		send()
+
+def get_dest_and_send(data) :
+
+	try :
+
+		dest = raw_input('Enter the user you wish to send to : ')
+		core.send(users.local_user, users.remote_users[dest.strip()], data)
+		
+		print 'Message sent'
+
+	except KeyError, e :
+		print  e.message + ' is not in your list of users'
+		get_dest_and_send(data)	
 
 # check for config files and inbox folder, do some sanity checks
 def setup() :
@@ -73,7 +135,7 @@ def retreive_messages() :
 
 	print 'Retreiving messages...'
 
-	d = receive(users.local_user)
+	d = core.receive(users.local_user)
 
 	# only display new messages
 	new = { mid : data for mid, data in d.items() if mid not in os.listdir(config['inbox']) }
