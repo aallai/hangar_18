@@ -22,5 +22,5 @@ We pickle this and store as a file.
 	{ user.name : user_object }
 		'''
 
-		self.local_users = {}
+		self.local_user = None
 		self.remote_users = {}

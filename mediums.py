@@ -4,9 +4,8 @@ import imaplib
 import poplib
 import re
 from config import config
- 
+
 # base class for transmission medium 
-# just a draft for now
 
 class Medium(object) :
 
@@ -32,6 +31,12 @@ class Medium(object) :
 
 	Scan the email account for messages sent to this user, should return
 	maybe a dictionary of lists of tuples, { mid : [(seq1, data1), ... (seqn, datan)] } ?
+		'''
+
+	def tostring(self) :
+
+		'''
+	So we can print medium settings.
 		'''
 
 class EmailError(Exception) :
@@ -98,7 +103,13 @@ class ImapServer(MailboxServer) :
 			return ls
 
 		except imaplib.IMAP4.error, e :
-			raise EmailError(e.message)			
+			raise EmailError(e.message)
+
+	def tostring(self) :			
+
+		string = '\n\t'.join(['IMAP Server\n{', 'host -> %s', 'port -> %s', 'user -> %s', 'password -> %s', 'SSL encrypted? -> %s\n}'])
+
+		return string % (self.host, self.port, self.user, self.passwd, str(self.use_ssl)) 
 
 class PopServer(MailboxServer) :
 
@@ -141,7 +152,11 @@ class PopServer(MailboxServer) :
 		except poplib.error_proto, e :
 			raise EmailError(e.message)
 
+	def tostring(self) :
 
+                string = '\n\t'.join(['POP Server\n{', 'host -> %s', 'port -> %s', 'user -> %s', 'password -> %s', 'SSL encrypted? -> %s\n}'])
+
+                return string % (self.host, self.port, self.user, self.passwd, str(self.use_ssl))
 
 class EmailMedium(Medium) :
 
@@ -158,6 +173,11 @@ Represents an email account to which messages can be sent (and possbly received 
 		self.mailbox_server = mailbox_server
 
 
+	def tostring(self) :
+
+		str = '\n\t'.join(['Email Medium\n{', 'address -> %s', 'mtu -> %s', 'server -> %s\n}'])
+	
+		return str % (self.address, self.mtu, re.sub('\n', '\n\t', self.mailbox_server.tostring()))		
 
 	def send(self, data, mid, seq, key) :
 		

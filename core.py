@@ -4,7 +4,6 @@ import hashlib
 import time
 from config import config
 
-
 '''
 Functions to send and receive messages using the protocol
 '''

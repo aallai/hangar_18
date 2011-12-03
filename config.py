@@ -1,12 +1,13 @@
-config = {}
 
-def read_configuration(file) :
-	
-	global config
-	file = open(file, 'r')
-	
-	# ignores blank lines and lines starting with a #
-	config = {line.split('=')[0].strip() : line.split('=')[1].strip() for line in filter(lambda x : x.split()[0].strip() != '#', filter(lambda x : x.strip(), file.read().split('\n')))}
+# rudimentary config file, you shouldn't anything here but feel free to change the values
+# this get imported as a python module, so the syntax has to be right 
 
-	
-
+config = {
+	'smtp_server' : 'smtp.gmail.com',
+	'smtp_user' : 'comp535test@gmail.com',
+	'smtp_passwd' : 'assignment3',
+	'default_mtu' : 16,
+	'user_db' : './users.db',
+	'inbox' : './inbox',
+}
+ 
