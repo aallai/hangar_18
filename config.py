@@ -1,5 +1,5 @@
 
-# rudimentary config file, you shouldn't anything here but feel free to change the values
+# rudimentary config file, you shouldn't delete anything here but feel free to change the values
 # this get imported as a python module, so the syntax has to be right 
 
 config = {
