@@ -143,7 +143,14 @@ class PopServer(MailboxServer) :
 			# a bit convoluted, poplib gets rid of the newline separating header and body, 
 			# not sure how to tell where the body starts, email can do it
 			for i in xrange(len(server.list()[1])) :
-				messages.append( email.message_from_string( '\n'.join(server.retr(i+1)[1]) ).get_payload() )	
+
+				s = email.message_from_string( '\n'.join(server.retr(i+1)[1]) ).get_payload() 
+				s = s[:-1]
+				print 'pop recv'
+				print s
+				print 'end pop recv'
+
+				messages.append( s )	
 
 			server.quit()
 	
@@ -184,17 +191,26 @@ Represents an email account to which messages can be sent (and possbly received 
 		'''
 	Send off a segment in an email
 		'''
+
+		print '>>> ' + self.address
+		print data
+		print '>>>'
 	
 		# not sure this works with every smtp server
 	
 		server = smtplib.SMTP(config['smtp_server'])
-		server.starttls()
-		server.login(config['smtp_user'], config['smtp_passwd'])		
+		server.ehlo()
+		
+		if server.has_extn('STARTTLS') :
+			server.starttls()
+			server.ehlo()
 
+		if server.has_extn('AUTH') :
+			server.login(config['smtp_user'], config['smtp_passwd'])		
 
 		msg = '\n'.join([key, mid + ' ' + str(seq), data])
 		
-		server.sendmail(self.address, self.address, msg)
+		server.sendmail(config['smtp_user'], self.address, msg)
 		server.quit()		
 
 	
