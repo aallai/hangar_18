@@ -146,9 +146,6 @@ class PopServer(MailboxServer) :
 
 				s = email.message_from_string( '\n'.join(server.retr(i+1)[1]) ).get_payload() 
 				s = s[:-1]
-				print 'pop recv'
-				print s
-				print 'end pop recv'
 
 				messages.append( s )	
 
@@ -191,10 +188,6 @@ Represents an email account to which messages can be sent (and possbly received 
 		'''
 	Send off a segment in an email
 		'''
-
-		print '>>> ' + self.address
-		print data
-		print '>>>'
 	
 		# not sure this works with every smtp server
 	
