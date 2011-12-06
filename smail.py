@@ -19,7 +19,8 @@ Welcome!
 
 1 Retreive messages
 2 Send a message
-3 Exit
+3 View user info
+4 Exit
 '''
 	while True :
 
@@ -32,6 +33,8 @@ Welcome!
 			elif action == 2 :
 				send()
 			elif action == 3 :
+				view_userlist()			
+			elif action == 4 :
 				sys.exit(1)
 			else :
 				bogus_input()					
@@ -43,6 +46,22 @@ Welcome!
 def bogus_input() :
 	sys.stderr.write('\nEnter a choice from the menu.\n')		
 
+def view_userlist() :
+
+	who = raw_input('Enter the name of the user who\'s information you wish to view : ').strip()
+
+	if users.local_user.name == who :
+		print 
+		print users.local_user.tostring()		
+			
+
+	else :
+
+		try :
+			print users.remote_users[who].tostring()
+		except KeyError :
+			print 'No such user exists.'
+			view_userlist()
 
 def send() :
 	

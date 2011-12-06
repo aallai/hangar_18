@@ -1,4 +1,4 @@
-
+import re
 
 class User(object) :
 
@@ -7,7 +7,12 @@ class User(object) :
                 self.name = name
                 self.key = key
                 self.mlist = mlist
-	
+
+	def tostring(self) :
+
+		s = '\n\t'.join(['%s\n{', 'key -> %s'] + [re.sub('\n', '\n\t', m.tostring()) for m in self.mlist])
+		s +='\n}'
+		return s % (self.name, self.key)
 
 class UserList(object) :
 

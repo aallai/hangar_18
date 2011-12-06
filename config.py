@@ -7,7 +7,7 @@ config = {
 	'smtp_user' : 'comp535test@gmail.com',
 	'smtp_passwd' : 'assignment3',
 	'default_mtu' : 16,
-	'user_db' : './users.db',
+	'user_db' : './users_a.db',
 	'inbox' : './inbox',
 }
  
