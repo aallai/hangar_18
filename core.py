@@ -48,7 +48,7 @@ def send(sender, receiver, data) :
 		send_range(receiver.mlist[i], segments[i * messages_per_medium : i*messages_per_medium + messages_per_medium], receiver.key, mid)
 		
 	if (med_len * messages_per_medium % seq_len != 0) :
-		send_range(receiver.mlist[0], segments[med_len * messages_per_medium :], sender.key, mid)		
+		send_range(receiver.mlist[0], segments[med_len * messages_per_medium :], receiver.key, mid)		
 			
 
 
